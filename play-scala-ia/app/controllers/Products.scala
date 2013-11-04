@@ -5,6 +5,7 @@ import models.Product
 import play.api.data.Form
 import play.api.data.Forms.{mapping, longNumber, nonEmptyText}
 import play.api.i18n.Messages
+import play.api.libs.json.Json
 
 /**
  * Created with IntelliJ IDEA.
@@ -67,6 +68,54 @@ object Products extends Controller {
       productForm
 
     Ok(views.html.products.editProduct(form))
+  }
+
+  def statuses(product: Product) = Action{
+    val url = routes.Products.show(product.ean).url
+
+
+    Created.withHeaders(LOCATION -> url)  // returns CREATED HTTP Status with location header
+    Status(501) // returns HTTP 501 status
+
+    // returning JSON in 2 ways
+    val jSON = """{"status" : "success"}"""
+    Ok(jSON).withHeaders(CONTENT_TYPE -> JSON)
+    Ok(jSON).as(JSON)
+    Ok(Json.toJson(Map("status" -> "success")))
+  }
+
+
+  def sessionData = Action{ implicit  request =>
+
+    // adding data to the session
+    Ok("""{"status" : "success"}""").withSession(request.session + ("search.previous" -> "myQuery"))
+    // will make request.session.get("search.previous") available
+
+    // removing data from the session
+    Ok("""{"status" : "success"}""").withSession(request.session - "search.previous")
+
+
+  }
+
+  def details(ean:Long) = Action{
+    Ok(s"""{"ean" : $ean}""")
+  }
+
+  def alias(alias:String)= Action{
+    Ok(s"""{"ean" : $alias}""")
+  }
+
+  def delete(ean:Long)=Action{
+    Product.delete(ean)
+    Redirect(routes.Products.list())
+  }
+
+  def edit(ean:Long)= Action{
+    NotImplemented
+  }
+
+  def update(ean:Long)= Action{
+    NotImplemented
   }
 
 }
