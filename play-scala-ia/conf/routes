@@ -19,6 +19,9 @@ GET         /products/:alias              controllers.Products.alias(alias:Strin
 DELETE      /products/:ean                controllers.Products.delete(ean:Long)
 
 
+# diverse tutorial examples
+GET         /examples                     controllers.Tutorialexamples.index
+
 
 #Path variables with forward slashes ( / )
 #GET         /products/*file             controllers.Media.get(file:String)
