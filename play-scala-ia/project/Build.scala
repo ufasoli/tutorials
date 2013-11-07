@@ -11,7 +11,8 @@ object ApplicationBuild extends Build {
     // Add your project dependencies here,
     jdbc,
     anorm,
-    "net.sf.barcode4j" % "barcode4j" % "2.0"
+    "net.sf.barcode4j" % "barcode4j" % "2.0",
+    "org.squeryl" %% "squeryl" % "0.9.5-6"
 
   )
 

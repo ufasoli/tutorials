@@ -1,11 +1,13 @@
 package controllers
 
 import play.api.mvc.{Flash, Controller, Action}
-import models.Product
+import models.{Database, StockItem, Product}
 import play.api.data.Form
 import play.api.data.Forms.{mapping, longNumber, nonEmptyText}
 import play.api.i18n.Messages
 import play.api.libs.json.Json
+import org.squeryl.PrimitiveTypeMode.transaction
+import Database.{stockItemsTable, productsTable}
 
 /**
  * Created with IntelliJ IDEA.
@@ -18,6 +20,7 @@ object Products extends Controller {
 
   private val productForm: Form[Product] = Form(
     mapping(
+      "id" -> longNumber,
       "ean" -> longNumber.verifying("validation.ean.duplicate", Product.findByEan(_).isEmpty),
       "name" -> nonEmptyText,
       "description" -> nonEmptyText
@@ -116,6 +119,36 @@ object Products extends Controller {
 
   def update(ean:Long)= Action{
     NotImplemented
+  }
+
+
+  def addNewProductGood(product:Product, stockItem:StockItem){
+    // good operations wrapped in a transaction
+    // if stockItem fails it will rollback both operations
+    transaction{
+        productsTable.insert(product)
+      stockItemsTable.insert(stockItem)
+    }
+  }
+
+  def addNewProductBad(product:Product, stockItem:StockItem){
+
+    // bad approach since not wrapped into a transaction
+    // so if stockItem fails we will have a product but no stock item
+
+    // each method will create it's own transaction
+    productsTable.insert(product)
+    stockItemsTable.insert(stockItem)
+  }
+
+
+  def addNewStokItem(product:Product, stockItem:StockItem){
+
+    product.stockItems.assign(stockItem)
+
+    transaction{
+      Database.stockItemsTable.insert(stockItem)
+    }
   }
 
 

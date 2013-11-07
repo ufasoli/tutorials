@@ -1,6 +1,9 @@
 import akka.actor.{Actor, Props}
 import java.util.Date
 import models.{PickList, Warehouse}
+import org.squeryl.adapters.H2Adapter
+import org.squeryl.{Session, SessionFactory}
+import play.api.db.DB
 import play.api.GlobalSettings
 import play.api.libs.concurrent
 import play.api.libs.concurrent.Akka
@@ -16,20 +19,29 @@ import play.api.templates.Html
 object Global extends GlobalSettings {
 
   override def onStart(application: play.api.Application) {
-    import scala.concurrent.duration._
-    import play.api.Play.current
 
-    for (warehouse <- Warehouse.find()) {
+     SessionFactory.concreteFactory = Some(
+       // provide Squeryl with a function to create a sesion
+       // this function will be executed every time squeryl needs a new session
+        () => Session.create(DB.getConnection()(application), new H2Adapter))
 
-      val actor = Akka.system.actorOf(
-          Props(new PickListActor(warehouse))
-        )
+    /*  import scala.concurrent.duration._
+   import play.api.Play.current
+
+   for (warehouse <- Warehouse.find()) {
+
+     val actor = Akka.system.actorOf(
+         Props(new PickListActor(warehouse))
+       )
 
 
 
-    }
+   }
+
+ }*/
 
   }
+
 
 }
 
